@@ -24,10 +24,12 @@ You can adjust the configuration if you need to. It's directly implemenented at 
   - default: `__DIR__ . "/cache"`
 - **id_hashAlgo**: hashing algorithm used to hash identifier
   - default: `"md5"`
-  - possible values: any hashing algorithm supported by your version of PHP, e.g.: md5, sha256,...
+  - values: any hashing algorithm supported by your version of PHP, e.g.: md5, sha256,...
 - **returnPathType**: type of path (relative or absolute) used in return values of functions
   - default: `"absolute"`
-  - possible values: relative, absolute
+  - values: relative, absolute
+- **dirCreatePermissions**: directory permissions to use when creating new folders (in octal)
+  - default: `0750`
 
 
 ## Usage

@@ -33,6 +33,13 @@
              * - values: relative or absolute
              */
             "returnPathType" => "absolute",
+
+            /**
+             * (int) Directory permissions to use when creating new folders (in octal).
+             * Warning: these directories (and files in them) have to be readable, writable and executable by PHP!
+             * - default: 0750
+             */
+            "dirCreatePermissions" => 0750,
         );
 
         protected $id_hash, $dirCache, $dataType;
@@ -116,7 +123,7 @@
             $dirOfFile_fullPath = $dirCache . "/files/" . $id_hash . "/";
             $fullFilePath = $dirCache . "/files/" . $file_withDir;
 
-            if(!file_exists($dirOfFile_fullPath) || !is_dir($dirOfFile_fullPath)) mkdir($dirOfFile_fullPath, 0750, true);
+            if(!file_exists($dirOfFile_fullPath) || !is_dir($dirOfFile_fullPath)) mkdir($dirOfFile_fullPath, $this->config["dirCreatePermissions"], true);
             $cacheWrite = file_put_contents($fullFilePath, $content);
             if($cacheWrite !== false){
                 file_put_contents($dirCache . "/" . $id_hash . "_current.json", '{"file":"' . $file_withExtension . '","path":"' . $file_withDir . '","dataType":"' . $this->dataType . '","extension":"' . $extension . '"}');
