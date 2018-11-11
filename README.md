@@ -20,7 +20,7 @@ PHP 5.6 or newer
 ## Configuration
 
 You can adjust the configuration if you need to. It's directly implemenented at the beginning of `kao.class.php` (around line 16). Currently there are these settings:
-- **dirCache**: directory where cache will be stored *(have to exist before use!)*
+- **dirCache**: directory where cache will be stored *(if it doesn't exist, Kao will try to create it)*
   - default: `__DIR__ . "/cache"`
 - **id_hashAlgo**: hashing algorithm used to hash identifier
   - default: `"md5"`
@@ -40,44 +40,18 @@ Best practice of this is reading cache where you need it, but creating (and also
 
 ### Supported data types
 
-#### `www`
+- **`www`**: Stores and reads/returns website source as *string*.
 
-Stores and reads/returns website source as *string*.
+- **`www_json`**: For websites with JSON content. JSON is downloaded from website, stored, and converted to PHP *array* when you want to `read()` it.
 
-**Example:**
-- source of `http://example.com`:
-  ```html
-  <!doctype html>
-  <html>
-     ...
-  </html>
-  ```
-- cron.php:
-  ```php
-  $kao = new Kao("example-html", "www");
-  $kao->create("http://example.com");
-  $kao->remove_old(600);
-  ```
-- index.php:
-  ```php
-  $kao = new Kao("example-html", "www");
-  $content = $kao->read();
-  echo($content);
+- **`string`**: Stores and reads/returns direct *string* input.
 
-  // RESULT:
-  // <!doctype html>
-  // <html>
-  //    ...
-  // </html>
-  ```
+- **`array`**: Stores direct *array* input (as JSON and converts it back on `read()`).
 
----
+- **`json`**: Stores direct JSON input, reads/returns it as *array/string*.
 
-#### `www_json`
+### Example
 
-For websites with JSON content. JSON is downloaded from website, stored, and converted to PHP *array* when you want to `read()` it.
-
-**Example:**
 - source of `https://jsonplaceholder.typicode.com/comments/1/`:
   ```json
   {
@@ -110,56 +84,6 @@ For websites with JSON content. JSON is downloaded from website, stored, and con
   // )
   ```
 
----
-
-#### `string`
-
-Stores and reads/returns direct *string* input.
-
-**Example:**
-- cron.php:
-  ```php
-  $kao = new Kao("example-text", "string");
-  $kao->create("Lorem ipsum...");
-  $kao->remove_old(600);
-  ```
-- index.php:
-  ```php
-  $kao = new Kao("example-text", "string");
-  $content = $kao->read();
-  echo($content);
-
-  // RESULT:
-  // Lorem ipsum...
-  ```
-
----
-
-#### `array`
-
-Stores direct *array* input (as JSON and converts it back on `read()`).
-
-**Example:**
-- cron.php:
-  ```php
-  $kao = new Kao("example-array", "array");
-  $kao->create(array("userid" => "147", "username" => "KaoExample123"));
-  $kao->remove_old(600);
-  ```
-- index.php:
-  ```php
-  $kao = new Kao("example-array", "array");
-  $content = $kao->read();
-  print_r($content);
-
-  // RESULT:
-  // Array (
-  //    [userid] => 147
-  //    [username] => KaoExample123
-  // )
-  ```
-
-
 ## Functions
 
 ### Construct
@@ -183,12 +107,13 @@ Creates cache files
 
 **Parameters:**
 - *string|array* `$input`: www address or direct input
+- [*array* `$filter`: e.g.: `[0, "a"]` will do `$input[0]["a"]` (applies only for `www_json`, `array` or `json` dataType)]
 
 **Return:** *(string)* path of created cache file
 
 **Syntax:**
 ```php
-$kao->create($input);
+$kao->create($input [, $filter]);
 ```
 
 ---
@@ -238,6 +163,31 @@ Deletes everything by `id` - all cache files and file with data
 ```php
 $kao->delete();
 ```
+
+---
+
+### latest_cache_info()
+
+Returns informations about latest cache file (in current `id`).
+
+**Parameters:** no parameters
+
+**Return:** *(array)* info:
+```php
+array (
+   "file" => (filename),
+   "path" => (relative path to the file, to get absolute just add dirCache + "/files/" to the beginning of this),
+   "dataType" => (dataType),
+   "extension" => (file extension),
+   "timestamp" => (UNIX timestamp of cache file creation)
+)
+```
+
+**Syntax:**
+```php
+$kao->latest_cache_info();
+```
+
 
 ## Credits
 
